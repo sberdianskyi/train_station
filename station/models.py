@@ -38,3 +38,10 @@ class Crew(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
 
+
+class Journey(models.Model):
+    route = models.ForeignKey(Route, on_delete=CASCADE)
+    train = models.ForeignKey(Train, on_delete=CASCADE)
+    departure_time = models.DateTimeField()
+    arrival_time = models.DateTimeField()
+    crew = models.ManyToManyField(Crew, related_name="journeys")
