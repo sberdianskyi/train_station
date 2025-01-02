@@ -8,12 +8,12 @@ class Station(models.Model):
     longitude = models.FloatField()
 
     def __str__(self):
-        return self.name
+        return f"{self.name}: {self.latitude} latitude, {self.longitude} longtitude"
 
 
 class Route(models.Model):
-    source = models.ForeignKey(Station, on_delete=models.CASCADE)
-    destination = models.ForeignKey(Station, on_delete=models.CASCADE)
+    source = models.ForeignKey(Station, related_name="route_source", on_delete=models.CASCADE)
+    destination = models.ForeignKey(Station, related_name="route_destination", on_delete=models.CASCADE)
     distance = models.IntegerField()
 
 
@@ -38,6 +38,9 @@ class Crew(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
 
 class Journey(models.Model):
     route = models.ForeignKey(Route, on_delete=CASCADE)
@@ -45,3 +48,4 @@ class Journey(models.Model):
     departure_time = models.DateTimeField()
     arrival_time = models.DateTimeField()
     crew = models.ManyToManyField(Crew, related_name="journeys")
+
