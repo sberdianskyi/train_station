@@ -1,3 +1,5 @@
+from math import radians, sin, cos, atan2, sqrt
+
 from django.db import models
 from django.db.models import CASCADE
 
@@ -14,7 +16,32 @@ class Station(models.Model):
 class Route(models.Model):
     source = models.ForeignKey(Station, related_name="route_source", on_delete=models.CASCADE)
     destination = models.ForeignKey(Station, related_name="route_destination", on_delete=models.CASCADE)
-    distance = models.IntegerField()
+    distance = models.IntegerField(blank=True, null=True)  # Distance can be calculated and updated
+
+    def save(self, *args, **kwargs):
+        if self.source and self.destination:
+            self.distance = self.calculate_distance()
+        super().save(*args, **kwargs)
+
+    def calculate_distance(self):
+        # Haversine formula to calculate the distance between two points
+        R = 6371  # Radius of the Earth in kilometers
+        lat1 = radians(self.source.latitude)
+        lon1 = radians(self.source.longitude)
+        lat2 = radians(self.destination.latitude)
+        lon2 = radians(self.destination.longitude)
+
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+
+        a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+        distance = R * c  # Distance in kilometers
+        return int(distance)  # Return as an integer
+
+    def __str__(self):
+        return f"{self.source.name} - {self.destination.name} (distance: {self.distance} km)"
 
 
 class TrainType(models.Model):
