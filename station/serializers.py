@@ -39,3 +39,13 @@ class CrewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crew
         fields = ("id", "first_name", "last_name")
+
+
+class JourneySerializer(serializers.ModelSerializer):
+    route = RouteSerializer(many=False, read_only=True)
+    train = TrainSerializer(many=False, read_only=True)
+    crew = CrewSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Journey
+        fields = ("id", "route", "train", "departure_time", "arrival_time", "crew")
