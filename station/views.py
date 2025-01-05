@@ -47,3 +47,8 @@ class CrewViewSet(
 ):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+
+
+class JourneyViewSet(ModelViewSet):
+    queryset = Journey.objects.all()
+    serializer_class = JourneySerializer
