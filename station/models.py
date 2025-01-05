@@ -76,3 +76,9 @@ class Journey(models.Model):
     arrival_time = models.DateTimeField()
     crew = models.ManyToManyField(Crew, related_name="journeys")
 
+    def __str__(self):
+        return (f"{self.route.source.name} - {self.route.destination.name}: "
+                f"departure at {self.departure_time} "
+                f"- arrive at {self.arrival_time}; "
+                f"train: {self.train}")
+
