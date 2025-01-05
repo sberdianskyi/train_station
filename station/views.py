@@ -40,3 +40,10 @@ class TrainViewSet(
 ):
     queryset = Train.objects.all()
     serializer_class = TrainSerializer
+
+
+class CrewViewSet(
+    ModelViewSet
+):
+    queryset = Crew.objects.all()
+    serializer_class = CrewSerializer
