@@ -17,3 +17,10 @@ class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
         fields = ("id", "source", "destination", "distance")
+
+
+class TrainTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TrainType
+        fields = ("id", "name")
