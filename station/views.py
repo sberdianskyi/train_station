@@ -47,13 +47,14 @@ class TrainTypeViewSet(
     serializer_class = TrainTypeSerializer
 
 
-class TrainViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    GenericViewSet,
-):
-    queryset = Train.objects.all()
+class TrainViewSet(ModelViewSet):
+    queryset = Train.objects.all().select_related()
     serializer_class = TrainSerializer
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return TrainListSerializer
+        return TrainSerializer
 
 
 class CrewViewSet(
