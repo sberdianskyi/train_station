@@ -61,10 +61,25 @@ class CrewSerializer(serializers.ModelSerializer):
 
 
 class JourneySerializer(serializers.ModelSerializer):
-    route = RouteSerializer(many=False, read_only=True)
-    train = TrainSerializer(many=False, read_only=True)
-    crew = CrewSerializer(many=True, read_only=True)
 
     class Meta:
         model = Journey
         fields = ("id", "route", "train", "departure_time", "arrival_time", "crew")
+
+
+class JourneyListSerializer(JourneySerializer):
+    route = serializers.CharField(source="route.route_name", read_only=True)
+    train = serializers.CharField(source="train.name", read_only=True)
+    train_capacity = serializers.IntegerField(
+        source="train.capacity", read_only=True
+    )
+
+    class Meta:
+        model = Journey
+        fields = ("id", "route", "train", "departure_time", "arrival_time", "train_capacity")
+
+
+class JourneyDetailSerializer(JourneySerializer):
+    route = RouteDetailSerializer(many=False, read_only=True)
+    train = TrainSerializer(many=False, read_only=True)
+    crew = serializers.SlugRelatedField(many=True, read_only=True, slug_field="full_name")
