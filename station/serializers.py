@@ -11,12 +11,24 @@ class StationSerializer(serializers.ModelSerializer):
 
 
 class RouteSerializer(serializers.ModelSerializer):
-    source = StationSerializer(many=False, read_only=True)
-    destination = StationSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Route
+        fields = ("id", "source", "destination")
+
+
+class RouteListSerializer(RouteSerializer):
+    source = serializers.SlugRelatedField(many=False, read_only=True, slug_field="name")
+    destination = serializers.SlugRelatedField(many=False, read_only=True, slug_field="name")
 
     class Meta:
         model = Route
         fields = ("id", "source", "destination", "distance")
+
+
+class RouteDetailSerializer(RouteSerializer):
+    source = StationSerializer(many=False, read_only=True)
+    destination = StationSerializer(many=False, read_only=True)
 
 
 class TrainTypeSerializer(serializers.ModelSerializer):
