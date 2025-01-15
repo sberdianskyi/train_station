@@ -1,9 +1,20 @@
 from rest_framework import mixins
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 
 from station.models import Station, Route, TrainType, Train, Crew, Journey
-from station.serializers import StationSerializer, RouteSerializer, TrainTypeSerializer, TrainSerializer, \
-    CrewSerializer, JourneySerializer
+from station.serializers import (
+    StationSerializer,
+    RouteSerializer,
+    TrainTypeSerializer,
+    TrainSerializer,
+    CrewSerializer,
+    JourneySerializer,
+    RouteListSerializer,
+    RouteDetailSerializer,
+    TrainListSerializer,
+    JourneyListSerializer,
+    JourneyDetailSerializer
+)
 
 
 class StationViewSet(
@@ -15,13 +26,16 @@ class StationViewSet(
     serializer_class = StationSerializer
 
 
-class RouteViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    GenericViewSet,
-):
-    queryset = Route.objects.all()
+class RouteViewSet(ModelViewSet):
+    queryset = Route.objects.all().select_related()
     serializer_class = RouteSerializer
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return RouteListSerializer
+        if self.action == "retrieve":
+            return RouteDetailSerializer
+        return RouteSerializer
 
 
 class TrainTypeViewSet(
