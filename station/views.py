@@ -65,5 +65,14 @@ class CrewViewSet(
 
 
 class JourneyViewSet(ModelViewSet):
-    queryset = Journey.objects.all()
+    queryset = Journey.objects.select_related(
+        "route__source", "route__destination", "train__train_type"
+    ).prefetch_related("train__train_type").all()
     serializer_class = JourneySerializer
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return JourneyListSerializer
+        if self.action == "retrieve":
+            return JourneyDetailSerializer
+        return JourneySerializer
