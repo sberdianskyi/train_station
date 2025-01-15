@@ -61,6 +61,10 @@ class Train(models.Model):
     places_in_cargo = models.IntegerField()
     train_type = models.ForeignKey(TrainType, on_delete=models.CASCADE)
 
+    @property
+    def capacity(self) -> int:
+        return self.cargo_num * self.places_in_cargo
+
     def __str__(self):
         return self.name
 
