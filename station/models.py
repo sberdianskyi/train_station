@@ -43,6 +43,10 @@ class Route(models.Model):
     def __str__(self):
         return f"{self.source.name} - {self.destination.name} (distance: {self.distance} km)"
 
+    @property
+    def route_name(self):
+        return f"{self.source.name} - {self.destination.name}"
+
 
 class TrainType(models.Model):
     name = models.CharField(max_length=255)
