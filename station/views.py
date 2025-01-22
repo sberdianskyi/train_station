@@ -80,6 +80,14 @@ class JourneyViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = self.queryset
+        date = self.request.query_params.get("date")
+        route_id = self.request.query_params.get("route")
+
+        if date:
+            queryset = queryset.filter(departure_time__date=date)
+
+        if route_id:
+            queryset = queryset.filter(route_id=route_id)
 
         if self.action in ("list", "retrieve"):
             queryset = (queryset.select_related(
