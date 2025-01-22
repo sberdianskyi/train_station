@@ -105,3 +105,18 @@ class Order(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class Ticket(models.Model):
+    id = models.AutoField(primary_key=True)
+    cargo = models.IntegerField()
+    seat = models.IntegerField()
+    journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name="tickets")
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="tickets")
+
+    def __str__(self):
+        return f"{self.journey}: cargo {self.cargo}, seat {self.seat}"
+
+    class Meta:
+        unique_together = ("journey", "cargo", "seat")
+        ordering = ["cargo", "seat"]
