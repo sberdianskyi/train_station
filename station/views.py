@@ -101,3 +101,15 @@ class OrderViewSet(ModelViewSet):
         "tickets__journey__route", "tickets__journey__train"
     ).all()
     serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return OrderListSerializer
+
+        return OrderSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
