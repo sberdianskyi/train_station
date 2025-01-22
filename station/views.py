@@ -1,7 +1,7 @@
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 
-from station.models import Station, Route, TrainType, Train, Crew, Journey
+from station.models import Station, Route, TrainType, Train, Crew, Journey, Order
 from station.serializers import (
     StationSerializer,
     RouteSerializer,
@@ -13,7 +13,9 @@ from station.serializers import (
     RouteDetailSerializer,
     TrainListSerializer,
     JourneyListSerializer,
-    JourneyDetailSerializer
+    JourneyDetailSerializer,
+    OrderSerializer,
+    OrderListSerializer
 )
 
 
@@ -51,6 +53,14 @@ class TrainViewSet(ModelViewSet):
     queryset = Train.objects.all().select_related()
     serializer_class = TrainSerializer
 
+    def get_queryset(self):
+        queryset = self.queryset
+
+        if self.action == "list":
+            queryset = queryset
+
+        return queryset
+
     def get_serializer_class(self):
         if self.action == "list":
             return TrainListSerializer
@@ -65,10 +75,18 @@ class CrewViewSet(
 
 
 class JourneyViewSet(ModelViewSet):
-    queryset = Journey.objects.select_related(
-        "route__source", "route__destination", "train__train_type"
-    ).prefetch_related("train__train_type").all()
+    queryset = Journey.objects.all()
     serializer_class = JourneySerializer
+
+    def get_queryset(self):
+        queryset = self.queryset
+
+        if self.action in ("list", "retrieve"):
+            queryset = (queryset.select_related(
+                "route__source", "route__destination", "train__train_type"
+            ).prefetch_related("train__train_type"))
+
+        return queryset
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -76,3 +94,8 @@ class JourneyViewSet(ModelViewSet):
         if self.action == "retrieve":
             return JourneyDetailSerializer
         return JourneySerializer
+
+
+class OrderViewSet(ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
