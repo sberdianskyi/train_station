@@ -97,5 +97,7 @@ class JourneyViewSet(ModelViewSet):
 
 
 class OrderViewSet(ModelViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects.prefetch_related(
+        "tickets__journey__route", "tickets__journey__train"
+    ).all()
     serializer_class = OrderSerializer
