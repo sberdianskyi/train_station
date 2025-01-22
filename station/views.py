@@ -74,12 +74,20 @@ class JourneyViewSet(ModelViewSet):
         queryset = self.queryset
         date = self.request.query_params.get("date")
         route_id = self.request.query_params.get("route")
+        source_name = self.request.query_params.get("source_name")
+        dest_name = self.request.query_params.get("dest_name")
 
         if date:
             queryset = queryset.filter(departure_time__date=date)
 
         if route_id:
             queryset = queryset.filter(route_id=route_id)
+
+        if source_name:
+            queryset = queryset.filter(route__source__name__icontains=source_name)
+
+        if dest_name:
+            queryset = queryset.filter(route__destination__name__icontains=dest_name)
 
         if self.action in ("list", "retrieve"):
             queryset = (queryset.select_related(
