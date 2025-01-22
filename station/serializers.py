@@ -1,6 +1,8 @@
+from django.db import transaction
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
-from station.models import Station, TrainType, Route, Train, Crew, Journey
+from station.models import Station, TrainType, Route, Train, Crew, Journey, Ticket, Order
 
 
 class StationSerializer(serializers.ModelSerializer):
@@ -83,3 +85,18 @@ class JourneyDetailSerializer(JourneySerializer):
     route = RouteDetailSerializer(many=False, read_only=True)
     train = TrainSerializer(many=False, read_only=True)
     crew = serializers.SlugRelatedField(many=True, read_only=True, slug_field="full_name")
+
+
+class TicketSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ticket
+        fields = ("id", "cargo", "seat", "journey")
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    tickets = TicketSerializer(many=True, read_only=False, allow_empty=False)
+
+    class Meta:
+        model = Order
+        fields = ("id", "created_at", "tickets")
