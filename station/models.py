@@ -114,6 +114,28 @@ class Ticket(models.Model):
     journey = models.ForeignKey(Journey, on_delete=models.CASCADE, related_name="tickets")
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="tickets")
 
+    @staticmethod
+    def validate_ticket(seat: int, cargo: int, train, error_to_raise):
+        if seat < 1 or seat > train.places_in_cargo:
+            raise error_to_raise(
+                f"Seat number {seat} is not valid. Cargo capacity: {train.places_in_cargo}")
+
+        if cargo < 0 or cargo > train.cargo_num:
+            raise error_to_raise(
+                f"Cargo value {cargo} exceeds the train's capacity of {train.cargo_num}")
+
+    def clean(self):
+        Ticket.validate_ticket(
+            self.seat,
+            self.cargo,
+            self.journey.train,
+            ValidationError
+        )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # Validate before saving
+        return super(Ticket, self).save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.journey}: cargo {self.cargo}, seat {self.seat}"
 
