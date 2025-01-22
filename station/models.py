@@ -1,7 +1,8 @@
 from math import radians, sin, cos, atan2, sqrt
 
+from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import CASCADE
 
 
 class Station(models.Model):
@@ -82,8 +83,8 @@ class Crew(models.Model):
 
 
 class Journey(models.Model):
-    route = models.ForeignKey(Route, on_delete=CASCADE)
-    train = models.ForeignKey(Train, on_delete=CASCADE)
+    route = models.ForeignKey(Route, on_delete=models.CASCADE)
+    train = models.ForeignKey(Train, on_delete=models.CASCADE)
     departure_time = models.DateTimeField()
     arrival_time = models.DateTimeField()
     crew = models.ManyToManyField(Crew, related_name="journeys")
@@ -91,6 +92,16 @@ class Journey(models.Model):
     def __str__(self):
         return (f"{self.route.source.name} - {self.route.destination.name}: "
                 f"departure at {self.departure_time} "
-                f"- arrive at {self.arrival_time}; "
-                f"train: {self.train}")
+                )
 
+
+class Order(models.Model):
+    id = models.AutoField(primary_key=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.created_at)
+
+    class Meta:
+        ordering = ["-created_at"]
