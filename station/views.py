@@ -53,14 +53,6 @@ class TrainViewSet(ModelViewSet):
     queryset = Train.objects.all().select_related()
     serializer_class = TrainSerializer
 
-    def get_queryset(self):
-        queryset = self.queryset
-
-        if self.action == "list":
-            queryset = queryset
-
-        return queryset
-
     def get_serializer_class(self):
         if self.action == "list":
             return TrainListSerializer
@@ -94,7 +86,7 @@ class JourneyViewSet(ModelViewSet):
                 "route__source", "route__destination", "train__train_type"
             ).prefetch_related("train__train_type"))
 
-        return queryset
+        return queryset.distinct()
 
     def get_serializer_class(self):
         if self.action == "list":
