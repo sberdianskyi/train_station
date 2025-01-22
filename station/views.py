@@ -1,4 +1,5 @@
 from rest_framework import mixins
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 
 from station.models import Station, Route, TrainType, Train, Crew, Journey, Order
@@ -104,11 +105,18 @@ class JourneyViewSet(ModelViewSet):
         return JourneySerializer
 
 
+class OrderSetPagination(PageNumberPagination):
+    page_size = 1
+    page_size_query_param = "page_size"
+    max_page_size = 10
+
+
 class OrderViewSet(ModelViewSet):
     queryset = Order.objects.prefetch_related(
         "tickets__journey__route", "tickets__journey__train"
     ).all()
     serializer_class = OrderSerializer
+    pagination_class = OrderSetPagination
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
