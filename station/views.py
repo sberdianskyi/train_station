@@ -1,3 +1,4 @@
+from django.db.models import F, Count
 from rest_framework import mixins
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
@@ -109,10 +110,24 @@ class JourneyViewSet(ModelViewSet):
         if dest_name:
             queryset = queryset.filter(route__destination__name__icontains=dest_name)
 
-        if self.action in ("list", "retrieve"):
-            queryset = (queryset.select_related(
-                "route__source", "route__destination", "train__train_type"
-            ).prefetch_related("train__train_type"))
+            if self.action == "list":
+                queryset = (
+                    queryset.select_related(
+                        "route__source", "route__destination", "train__train_type"
+                    )
+                    .prefetch_related("train__train_type")
+                    .annotate(
+                        tickets_available=F("train__cargo_num")
+                                          * F("train__places_in_cargo")
+                                          - Count("tickets")
+                    )
+                    .order_by("id")
+                )
+
+            if self.action == "retrieve":
+                queryset = queryset.select_related(
+                    "route__source", "route__destination", "train__train_type"
+                ).prefetch_related("train__train_type")
 
         return queryset.distinct()
 
