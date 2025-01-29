@@ -1,8 +1,16 @@
 from rest_framework import mixins
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from station.models import Station, Route, TrainType, Train, Crew, Journey, Order
+from station.models import (
+    Station,
+    Route,
+    TrainType,
+    Train,
+    Crew,
+    Journey,
+    Order
+)
 from station.serializers import (
     StationSerializer,
     RouteSerializer,
@@ -16,7 +24,7 @@ from station.serializers import (
     JourneyListSerializer,
     JourneyDetailSerializer,
     OrderSerializer,
-    OrderListSerializer
+    OrderListSerializer,
 )
 
 
@@ -29,7 +37,12 @@ class StationViewSet(
     serializer_class = StationSerializer
 
 
-class RouteViewSet(ModelViewSet):
+class RouteViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    GenericViewSet
+):
     queryset = Route.objects.all().select_related()
     serializer_class = RouteSerializer
 
@@ -50,7 +63,11 @@ class TrainTypeViewSet(
     serializer_class = TrainTypeSerializer
 
 
-class TrainViewSet(ModelViewSet):
+class TrainViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet,
+):
     queryset = Train.objects.all().select_related()
     serializer_class = TrainSerializer
 
@@ -61,7 +78,9 @@ class TrainViewSet(ModelViewSet):
 
 
 class CrewViewSet(
-    ModelViewSet
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet
 ):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
@@ -111,7 +130,11 @@ class OrderSetPagination(PageNumberPagination):
     max_page_size = 10
 
 
-class OrderViewSet(ModelViewSet):
+class OrderViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    GenericViewSet
+):
     queryset = Order.objects.prefetch_related(
         "tickets__journey__route", "tickets__journey__train"
     ).all()
