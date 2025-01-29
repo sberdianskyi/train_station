@@ -2,7 +2,16 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from station.models import Station, TrainType, Route, Train, Crew, Journey, Ticket, Order
+from station.models import (
+    Station,
+    TrainType,
+    Route,
+    Train,
+    Crew,
+    Journey,
+    Ticket,
+    Order,
+)
 
 
 class StationSerializer(serializers.ModelSerializer):
@@ -20,8 +29,16 @@ class RouteSerializer(serializers.ModelSerializer):
 
 
 class RouteListSerializer(RouteSerializer):
-    source = serializers.SlugRelatedField(many=False, read_only=True, slug_field="name")
-    destination = serializers.SlugRelatedField(many=False, read_only=True, slug_field="name")
+    source = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field="name"
+    )
+    destination = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field="name"
+    )
 
     class Meta:
         model = Route
@@ -72,13 +89,20 @@ class JourneySerializer(serializers.ModelSerializer):
 class JourneyListSerializer(JourneySerializer):
     route = serializers.CharField(source="route.route_name", read_only=True)
     train = serializers.CharField(source="train.name", read_only=True)
-    train_capacity = serializers.IntegerField(
-        source="train.capacity", read_only=True
-    )
+    train_capacity = serializers.IntegerField(source="train.capacity", read_only=True)
+    tickets_available = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Journey
-        fields = ("id", "route", "train", "departure_time", "arrival_time", "train_capacity")
+        fields = (
+            "id",
+            "route",
+            "train",
+            "departure_time",
+            "arrival_time",
+            "train_capacity",
+            "tickets_available",
+        )
 
 
 class TakenSeatsSerializer(serializers.ModelSerializer):
@@ -90,12 +114,22 @@ class TakenSeatsSerializer(serializers.ModelSerializer):
 class JourneyDetailSerializer(JourneySerializer):
     route = RouteDetailSerializer(many=False, read_only=True)
     train = TrainSerializer(many=False, read_only=True)
-    crew = serializers.SlugRelatedField(many=True, read_only=True, slug_field="full_name")
+    crew = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="full_name"
+    )
     taken_seats = TakenSeatsSerializer(many=True, read_only=True, source="tickets")
 
     class Meta:
         model = Journey
-        fields = ("id", "route", "train", "departure_time", "arrival_time", "crew", "taken_seats")
+        fields = (
+            "id",
+            "route",
+            "train",
+            "departure_time",
+            "arrival_time",
+            "crew",
+            "taken_seats"
+        )
 
 
 class TicketSerializer(serializers.ModelSerializer):
