@@ -1,4 +1,6 @@
 from django.db.models import F, Count
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -119,6 +121,7 @@ class JourneyViewSet(ModelViewSet):
     serializer_class = JourneySerializer
 
     def get_queryset(self):
+        """Retrieve journeys with filters"""
         queryset = self.queryset
         date = self.request.query_params.get("date")
         route_id = self.request.query_params.get("route")
@@ -164,6 +167,36 @@ class JourneyViewSet(ModelViewSet):
         if self.action == "retrieve":
             return JourneyDetailSerializer
         return JourneySerializer
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "date",
+                type=OpenApiTypes.DATE,
+                description=(
+                        "Filter journey by departure date"
+                        "(ex. ?date=2022-10-23)"
+                ),
+            ),
+            OpenApiParameter(
+                "route",
+                type={"type": "list", "items": {"type": "number"}},
+                description="Filter journeys by routes id (ex. ?route=2)",
+            ),
+            OpenApiParameter(
+                "source_name",
+                type=OpenApiTypes.STR,
+                description="Filter by route source name (ex. ?source_name=Kharkiv)",
+            ),
+            OpenApiParameter(
+                "dest_name",
+                type=OpenApiTypes.STR,
+                description="Filter by route destination name (ex. ?dest_name=Kyiv)",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class OrderSetPagination(PageNumberPagination):
