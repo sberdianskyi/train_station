@@ -1,8 +1,11 @@
+import os
+import uuid
 from math import radians, sin, cos, atan2, sqrt
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.text import slugify
 
 
 class Station(models.Model):
@@ -70,9 +73,17 @@ class Train(models.Model):
         return self.name
 
 
+def image_file_path(instance, filename):
+    _, extension = os.path.splitext(filename)
+    filename = f"{slugify(instance.full_name)}-{uuid.uuid4()}{extension}"
+
+    return os.path.join("uploads/movies/", filename)
+
+
 class Crew(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
+    image = models.ImageField(null=True, upload_to=image_file_path)
 
     @property
     def full_name(self) -> str:
