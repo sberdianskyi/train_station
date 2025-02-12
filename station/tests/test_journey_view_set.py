@@ -28,7 +28,11 @@ def test_station(**params) -> Station:
 
 def test_route(**params) -> Route:
     source = test_station()
-    destination = test_station(name="Kyiv", latitude=50.44056, longitude=30.48944)
+    destination = test_station(
+        name="Kyiv",
+        latitude=50.44056,
+        longitude=30.48944
+    )
     default_route = {
         "source": source,
         "destination": destination,
@@ -114,9 +118,14 @@ class AuthenticatedJourneyViewSetTests(TestCase):
 
     @staticmethod
     def serializer_data_with_tickets_available(journeys):
-        queryset = Journey.objects.filter(id__in=[j.id for j in journeys]).annotate(
-            tickets_available=F("train__cargo_num") * F("train__places_in_cargo")
-            - Count("tickets")
+        queryset = (
+            Journey.objects.filter(id__in=[j.id for j in journeys])
+            .annotate(
+                tickets_available=(
+                    F("train__cargo_num") * F("train__places_in_cargo")
+                    - Count("tickets")
+                )
+            )
         )
         return JourneyListSerializer(queryset, many=True).data
 
@@ -127,13 +136,21 @@ class AuthenticatedJourneyViewSetTests(TestCase):
         journey_with_crew.crew.add(crew, crew_1)
 
         res = self.client.get(JOURNEY_URL)
-        expected_data = self.serializer_data_with_tickets_available([journey_with_crew])
+        expected_data = (
+            self.serializer_data_with_tickets_available(
+                [journey_with_crew]
+            )
+        )
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, expected_data)
 
     def test_filter_journey_by_route_id(self):
-        source = test_station(name="Kremenchuk", latitude=49.06794, longitude=33.42786)
+        source = test_station(
+            name="Kremenchuk",
+            latitude=49.06794,
+            longitude=33.42786
+        )
         destination = test_station(
             name="Donetsk", latitude=48.04401, longitude=37.74616
         )

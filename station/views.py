@@ -135,29 +135,34 @@ class JourneyViewSet(ModelViewSet):
             queryset = queryset.filter(route_id=route_id)
 
         if source_name:
-            queryset = queryset.filter(route__source__name__icontains=source_name)
+            queryset = queryset.filter(
+                route__source__name__icontains=source_name
+            )
 
         if dest_name:
-            queryset = queryset.filter(route__destination__name__icontains=dest_name)
+            queryset = queryset.filter(
+                route__destination__name__icontains=dest_name
+            )
 
-            if self.action == "list":
-                queryset = (
-                    queryset.select_related(
-                        "route__source", "route__destination", "train__train_type"
-                    )
-                    .prefetch_related("train__train_type")
-                    .annotate(
-                        tickets_available=F("train__cargo_num")
-                                          * F("train__places_in_cargo")
-                                          - Count("tickets")
-                    )
-                    .order_by("id")
-                )
-
-            if self.action == "retrieve":
-                queryset = queryset.select_related(
+        if self.action == "list":
+            queryset = (
+                queryset.select_related(
                     "route__source", "route__destination", "train__train_type"
-                ).prefetch_related("train__train_type")
+                )
+                .prefetch_related("train__train_type")
+                .annotate(
+                    tickets_available=(
+                        F("train__cargo_num") * F("train__places_in_cargo")
+                        - Count("tickets")
+                        )
+                )
+                .order_by("id")
+            )
+
+        if self.action == "retrieve":
+            queryset = queryset.select_related(
+                "route__source", "route__destination", "train__train_type"
+            ).prefetch_related("train__train_type")
 
         return queryset.distinct()
 
@@ -186,12 +191,14 @@ class JourneyViewSet(ModelViewSet):
             OpenApiParameter(
                 "source_name",
                 type=OpenApiTypes.STR,
-                description="Filter by route source name (ex. ?source_name=Kharkiv)",
+                description="Filter by route source name "
+                            "(ex. ?source_name=Kharkiv)",
             ),
             OpenApiParameter(
                 "dest_name",
                 type=OpenApiTypes.STR,
-                description="Filter by route destination name (ex. ?dest_name=Kyiv)",
+                description="Filter by route destination name "
+                            "(ex. ?dest_name=Kyiv)",
             ),
         ]
     )

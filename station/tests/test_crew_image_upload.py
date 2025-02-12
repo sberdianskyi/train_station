@@ -13,10 +13,12 @@ from station.models import Crew
 
 CREW_URL = reverse("station:crew-list")
 
+
 def test_crew(**params) -> Crew:
     default_crew = {"first_name": "Sheldon", "last_name": "Cooper"}
     default_crew.update(params)
     return Crew.objects.create(**default_crew)
+
 
 def image_upload_url(crew_id):
     """Return URL for recipe image upload"""
