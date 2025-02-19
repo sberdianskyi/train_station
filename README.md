@@ -55,3 +55,7 @@ provided by the API.
 * Creating Journeys, Crews, Trains, Train Types
 * Filtering Journeys using different parameters
 * Uploading images for each Crew
+
+## Database structure
+
+![db_structure.png](db_structure.png)
